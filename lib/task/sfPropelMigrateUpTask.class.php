@@ -9,7 +9,7 @@
  */
 
 require_once(dirname(__FILE__).'/sfPropelBaseTask.class.php');
-require_once(dirname(__FILE__).'/propel/util/PropelMigrationManager.php');
+require_once('generator/lib/util/PropelMigrationManager.php');
 
 /**
  * Executes the next migration up
