@@ -8,6 +8,9 @@
  * file that was distributed with this source code.
  */
 
+require_once(dirname(__FILE__).'/sfPropelBaseTask.class.php');
+require_once(dirname(__FILE__).'/propel/util/PropelMigrationManager.php');
+
 /**
  * Checks the migrations to run
  *
@@ -110,11 +113,12 @@ EOF;
       }
       foreach ($migrationTimestamps as $timestamp)
       {
-        if ($timestamp <= $oldestMigrationTimestamp && $options['verbose'])
+        $executed = !in_array($timestamp, $validTimestamps);
+        if ($executed && $options['verbose'])
         {
           $this->logSection('propel', sprintf('  %s %s (executed)', $timestamp == $oldestMigrationTimestamp ? '>' : ' ', $manager->getMigrationClassName($timestamp)), null, 'COMMENT');
         }
-        elseif ($timestamp > $oldestMigrationTimestamp)
+        elseif (!$executed)
         {
           $this->logSection('propel', sprintf('    %s', $manager->getMigrationClassName($timestamp)));
         }
