@@ -9,7 +9,7 @@
  */
 
 require_once(dirname(__FILE__).'/sfPropelBaseTask.class.php');
-require_once('generator/lib/util/PropelMigrationManager.php');
+require_once(dirname(__FILE__).'/propel/util/PropelMigrationManager.php');
 
 /**
  * Executes the next migration down
@@ -133,7 +133,7 @@ EOF;
         $datasource
       ));
 
-      $manager->updateLatestMigrationTimestamp($datasource, $previousTimestamp);
+      $manager->removeMigrationTimestamp($datasource, $nextMigrationTimestamp);
       if ($options['verbose'])
       {
         $this->logSection('propel', sprintf('  Downgraded latest migration date to %d for datasource "%s"', $previousTimestamp, $datasource), null, 'COMMENT');
