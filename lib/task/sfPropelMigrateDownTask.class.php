@@ -59,6 +59,7 @@ EOF;
     $manager->setMigrationTable($options['migration-table']);
     $migrationDirectory = sfConfig::get('sf_root_dir') . DIRECTORY_SEPARATOR . $options['migration-dir'];
     $manager->setMigrationDir($migrationDirectory);
+    $manager->setMigrationParallel($this->getGeneratorConfig()->getBuildProperty('migrationParallel'));
 
     $previousTimestamps = $manager->getAlreadyExecutedMigrationTimestamps();
     if (!$nextMigrationTimestamp = array_pop($previousTimestamps))
@@ -133,7 +134,15 @@ EOF;
         $datasource
       ));
 
-      $manager->removeMigrationTimestamp($datasource, $nextMigrationTimestamp);
+      if ($manager->getMigrationParallel())
+      {
+        $manager->removeMigrationTimestamp($datasource, $nextMigrationTimestamp);
+      }
+      else
+      {
+        $manager->updateLatestMigrationTimestamp($datasource, $previousTimestamp);
+      }
+
       if ($options['verbose'])
       {
         $this->logSection('propel', sprintf('  Downgraded latest migration date to %d for datasource "%s"', $previousTimestamp, $datasource), null, 'COMMENT');

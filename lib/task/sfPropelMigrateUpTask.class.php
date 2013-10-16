@@ -59,6 +59,7 @@ EOF;
     $manager->setMigrationTable($options['migration-table']);
     $migrationDirectory = sfConfig::get('sf_root_dir') . DIRECTORY_SEPARATOR . $options['migration-dir'];
     $manager->setMigrationDir($migrationDirectory);
+    $manager->setMigrationParallel($this->getGeneratorConfig()->getBuildProperty('migrationParallel'));
 
     if (!$nextMigrationTimestamp = $manager->getFirstUpMigrationTimestamp())
     {
