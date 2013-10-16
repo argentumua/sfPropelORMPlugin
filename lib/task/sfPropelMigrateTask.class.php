@@ -32,6 +32,7 @@ class sfPropelMigrateTask extends sfPropelBaseTask
       new sfCommandOption('migration-dir', null, sfCommandOption::PARAMETER_OPTIONAL, 'The migrations subdirectory', 'lib/model/migration'),
       new sfCommandOption('migration-table', null, sfCommandOption::PARAMETER_OPTIONAL, 'The name of the migration table', 'propel_migration'),
       new sfCommandOption('verbose', null, sfCommandOption::PARAMETER_NONE, 'Enables verbose output'),
+      new sfCommandOption('oneshot', null, sfCommandOption::PARAMETER_NONE, 'Do not store timestamps in the migration table and remove migrations after execution'),
     ));
     $this->namespace = 'propel';
     $this->name = 'migrate';
@@ -132,7 +133,10 @@ EOF;
           count($statements),
           $datasource
         ));
-        $manager->updateLatestMigrationTimestamp($datasource, $timestamp);
+        if (!$options['oneshot'])
+        {
+          $manager->updateLatestMigrationTimestamp($datasource, $timestamp);
+        }
         if ($options['verbose'])
         {
           $this->logSection('propel', sprintf('  Updated latest migration date to %d for datasource "%s"', $timestamp, $datasource), null, 'COMMENT');
@@ -140,6 +144,11 @@ EOF;
       }
 
       $migration->postUp($manager);
+
+      if ($options['oneshot'])
+      {
+        unlink($manager->getMigrationDir() . '/' . $manager->getMigrationFileName($timestamp));
+      }
     }
 
     $this->logSection('propel', 'Migration complete. No further migration to execute.');
