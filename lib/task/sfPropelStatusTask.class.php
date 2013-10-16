@@ -59,6 +59,7 @@ EOF;
     $manager->setMigrationTable($options['migration-table']);
     $migrationDirectory = sfConfig::get('sf_root_dir') . DIRECTORY_SEPARATOR . $options['migration-dir'];
     $manager->setMigrationDir($migrationDirectory);
+    $manager->setMigrationParallel($this->getGeneratorConfig()->getBuildProperty('migrationParallel'));
 
     $this->logSection('propel', 'Checking Database Versions...');
     foreach ($connections as $name => $params)
@@ -113,7 +114,14 @@ EOF;
       }
       foreach ($migrationTimestamps as $timestamp)
       {
-        $executed = !in_array($timestamp, $validTimestamps);
+        if ($manager->getMigrationParallel())
+        {
+          $executed = !in_array($timestamp, $validTimestamps);
+        }
+        else
+        {
+          $executed = $timestamp <= $oldestMigrationTimestamp;
+        }
         if ($executed && $options['verbose'])
         {
           $this->logSection('propel', sprintf('  %s %s (executed)', $timestamp == $oldestMigrationTimestamp ? '>' : ' ', $manager->getMigrationClassName($timestamp)), null, 'COMMENT');
